@@ -1,0 +1,29 @@
+﻿<Properties StartupConfiguration="{D10BCE9C-EDB9-4BF5-9AB7-ED5295865BCD}|https">
+  <MonoDevelop.Ide.Workbench ActiveDocument="JWTAuth/Data/DatabaseContext.cs">
+    <Files>
+      <File FileName="JWTAuth/appsettings.json" Line="13" Column="1" />
+      <File FileName="JWTAuth/Program.cs" Line="16" Column="37" />
+      <File FileName="JWTAuth/Data/DatabaseContext.cs" Line="9" Column="2" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="AuthWithJWTRoleBased" expanded="True">
+            <Node name="JWTAuth">
+              <Node name="Data">
+                <Node name="DatabaseContext.cs" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.JWTAuth PreferredExecutionTarget="/Applications/Google Chrome.app" FirstBuild="True" />
+</Properties>
