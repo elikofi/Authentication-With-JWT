@@ -336,7 +336,7 @@ namespace JWTAuth.Repositories.Implementation
             var roles = await userManager.GetRolesAsync(user);
 
             return roles;
-        }
+        }//
 
     }
 }
