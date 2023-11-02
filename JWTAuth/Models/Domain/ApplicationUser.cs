@@ -1,4 +1,5 @@
 ﻿using System;
+using JWTAuth.Roles;
 using Microsoft.AspNetCore.Identity;
 
 namespace JWTAuth.Models.Domain

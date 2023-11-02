@@ -3079,11 +3079,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/elijahamoako/Projects/AuthWithJWTRoleBased/JWTAuth/JWTAuth.csproj",
+      "projectUniqueName": "/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/JWTAuth.csproj",
       "projectName": "JWTAuth",
-      "projectPath": "/Users/elijahamoako/Projects/AuthWithJWTRoleBased/JWTAuth/JWTAuth.csproj",
+      "projectPath": "/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/JWTAuth.csproj",
       "packagesPath": "/Users/elijahamoako/.nuget/packages/",
-      "outputPath": "/Users/elijahamoako/Projects/AuthWithJWTRoleBased/JWTAuth/obj/",
+      "outputPath": "/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/elijahamoako/.nuget/NuGet/NuGet.Config"

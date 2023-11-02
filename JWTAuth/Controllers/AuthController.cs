@@ -7,6 +7,7 @@ using JWTAuth.Models.DTO;
 using JWTAuth.Repositories.Abstract;
 using JWTAuth.Repositories.Implementation;
 using JWTAuth.Roles;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -62,6 +63,89 @@ namespace JWTAuth.Controllers
             return Unauthorized();
         }
 
+        //make super admin
+        [HttpPost]
+        [Route("Make-SuperAdmin")]
+        public async Task<IActionResult> MakeSuperAdmin([FromBody] UpdatePermissions model)
+        {
+            var result = await service.MakeSuperAdminAsync(model);
+            if (result.StatusCode == 0)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+
+        //make admin
+        [HttpPost]
+        [Route("Make-Admin")]
+        public async Task<IActionResult> MakeAdmin([FromBody] UpdatePermissions model)
+        {
+            var result = await service.MakeAdminAsync(model);
+            if (result.StatusCode == 0)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+
+        //Change password
+        [HttpPost]
+        [Route("Changepassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
+        {
+            var result = await service.ChangePasswordAsync(model);
+
+            if (result.StatusCode == 0)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+
+        //Sign out
+        [Authorize]
+        [HttpPost]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await service.LogoutAsync();
+            return Ok("Signed Out!");
+        }
+
+        //Get all users
+        [HttpGet]
+        [Route("GetAppUsers")]
+        //[Authorize(Roles = "SUPERADMIN")]
+        [Authorize(Roles = UserRoles.SUPERADMIN )]
+        public async Task<IActionResult> GetAppUsers()
+        {
+            var data = await service.GetAppUsersAsync();
+            return Ok(data);
+        }
+
+        [HttpDelete]
+        [Route("DeleteUser")]
+        //[Authorize(Roles = "admin")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var product = await service.DeleteUserAsync(id);
+            if (product.StatusCode == 1)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("GetUserRole")]
+        //[Authorize(Roles = "SUPERADMIN")]
+        [Authorize(Roles = UserRoles.SUPERADMIN)]
+        public async Task<IActionResult> GetUserRole(string email)
+        {
+            var userRole = await service.GetUserRoles(email);
+            return Ok(userRole);
+        }
     }
 }
 

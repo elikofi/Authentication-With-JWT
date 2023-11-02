@@ -7,30 +7,39 @@ using JWTAuth.Repositories.Abstract;
 using JWTAuth.Roles;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace JWTAuth.Repositories.Implementation
 {
 	public class AuthService : IAuthService
 	{
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration configuration;
         private readonly ITokenService tokenService;
         private readonly DatabaseContext context;
+        //private readonly UserRoles roles;
         
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,ITokenService tokenService, DatabaseContext context)
+
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager,
+            IConfiguration configuration, ITokenService tokenService, DatabaseContext context/*, UserRoles roles*/)
         {
             this.userManager = userManager;
+            this.signInManager = signInManager;
             this.roleManager = roleManager;
             this.configuration = configuration;
             this.tokenService = tokenService;
             this.context = context;
+            //this.roles = roles;
         }
 
 
         readonly Status status = new();
 
+        //LOGIN
         public async Task<Status> LoginAsync(Login model)
         {
             try
@@ -52,9 +61,12 @@ namespace JWTAuth.Repositories.Implementation
                     return status;
                 }
 
-                var userRoles = await userManager.GetRolesAsync(user);
+                var signIn = await signInManager.PasswordSignInAsync(user, model.Password, false, true);
+                if (signIn.Succeeded)
+                {
+                    var userRoles = await userManager.GetRolesAsync(user);
 
-                var authClaims = new List<Claim>
+                    var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.NameIdentifier, user.Id),
@@ -62,38 +74,53 @@ namespace JWTAuth.Repositories.Implementation
                     new Claim("FirstName", user.FirstName),
                     new Claim("LastName", user.LastName),
                 };
-                foreach (var userRole in userRoles)
+                    foreach (var userRole in userRoles)
+                    {
+                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    }
+
+                    var token = tokenService.GetToken(authClaims);
+                    //var refreshToken = tokenService.GetRefreshToken();
+                    //var tokenInfo = context.TokenInfo.FirstOrDefault(a => a.UserName == user.UserName);
+
+                    //if (tokenInfo == null)
+                    //{
+                    //    var info = new TokenInfo
+                    //    {
+                    //        UserName = user.UserName,
+                    //        RefreshToken = refreshToken,
+                    //        RefreshTokenExpiry = DateTime.Now.AddHours(1)
+                    //    };
+                    //    context.TokenInfo.Add(info);
+                    //}
+                    //else
+                    //{
+                    //    tokenInfo.RefreshToken = refreshToken;
+                    //    tokenInfo.RefreshTokenExpiry = DateTime.Now.AddHours(1);
+                    //}
+                    //var validationErrors = context.GetValidationErrors();
+
+                    await context.SaveChangesAsync();
+
+                    status.StatusCode = 1;
+                    status.Token = token;
+                    status.Message = "Login Successful.";
+                    return status;
+                }
+                else if (signIn.IsLockedOut)
                 {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    status.StatusCode = 0;
+                    status.Message = "User logged out.";
+                    return status;
+                }
+                else
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Login not successful.";
+                    return status;
                 }
 
-                var token = tokenService.GetToken(authClaims);
-                //var refreshToken = tokenService.GetRefreshToken();
-                //var tokenInfo = context.TokenInfo.FirstOrDefault(a => a.UserName == user.UserName);
-
-                //if (tokenInfo == null)
-                //{
-                //    var info = new TokenInfo
-                //    {
-                //        UserName = user.UserName,
-                //        RefreshToken = refreshToken,
-                //        RefreshTokenExpiry = DateTime.Now.AddHours(1)
-                //    };
-                //    context.TokenInfo.Add(info);
-                //}
-                //else
-                //{
-                //    tokenInfo.RefreshToken = refreshToken;
-                //    tokenInfo.RefreshTokenExpiry = DateTime.Now.AddHours(1);
-                //}
-                //var validationErrors = context.GetValidationErrors();
-
-                await context.SaveChangesAsync();
-
-                status.StatusCode = 1;
-                status.Token = token;
-                status.Message = "Login Successful.";
-                return status;
+                
             }
             catch (DbUpdateException e)
             {
@@ -106,6 +133,7 @@ namespace JWTAuth.Repositories.Implementation
 
         }
 
+        //MAKE ADMIN
         public async Task<Status> MakeAdminAsync(UpdatePermissions model)
         {
             try
@@ -134,13 +162,36 @@ namespace JWTAuth.Repositories.Implementation
 
         }
 
-        public Task<Status> MakeSuperAdminAsync(UpdatePermissions model)
+
+        //MAKE SUPER ADMIN
+        public async Task<Status> MakeSuperAdminAsync(UpdatePermissions model)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await userManager.FindByNameAsync(model.UserName);
+
+                if (user == null)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Invalid Username.";
+                    return status;
+                }
+                await userManager.AddToRoleAsync(user, UserRoles.SUPERADMIN);
+
+                status.StatusCode = 1;
+                status.Message = user.UserName + " is now a super admin.";
+                return status;
+            }
+            catch (Exception e)
+            {
+                status.StatusCode = 0;
+                status.Message = e.Message;
+                return status;
+            }
         }
 
 
-        //Registering user.
+        //REGISTER USER
         public async Task<Status> RegisterAsync(Registration model)
         {
             var isExistsUser = await userManager.FindByNameAsync(model.UserName);
@@ -148,7 +199,7 @@ namespace JWTAuth.Repositories.Implementation
             if (isExistsUser != null)
             {
                 status.StatusCode = 0;
-                status.Message = "User already exists.";
+                status.Message = "Username already exists. Choose a different username.";
                 return status;
             }
 
@@ -176,7 +227,7 @@ namespace JWTAuth.Repositories.Implementation
                 return status;
             }
 
-            // Admin Role to all users
+            // TO MAKE USER ADMIN
             //await userManager.AddToRoleAsync(newUser, UserRoles.SUPERADMIN);
 
             //Default user role
@@ -186,7 +237,7 @@ namespace JWTAuth.Repositories.Implementation
             return status;
 
         }
-
+        //SEED ROLES TO DB
         public async Task<Status> SeedRolesAsync()
         {
             bool isOwnerRoleExists = await roleManager.RoleExistsAsync(UserRoles.SUPERADMIN);
@@ -209,6 +260,84 @@ namespace JWTAuth.Repositories.Implementation
             status.Message = "Role seeding done successfully.";
             return status;
         }
+
+
+        //CHANGE PASSWORD
+        public async Task<Status> ChangePasswordAsync(ChangePassword model)
+        {
+            //find the user.
+
+            var user = await userManager.FindByNameAsync(model.Username);
+            if (user ==  null)
+            {
+                status.StatusCode = 0;
+                status.Message = "Username not found.";
+                return status;
+            }
+            //check the current password.
+            if (!await userManager.CheckPasswordAsync(user, model.CurrentPassword))
+            {
+                status.StatusCode = 0;
+                status.Message = "Current password is wrong.";
+                return status;
+            }
+            //create new password
+            var newPassword = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+            if (!newPassword.Succeeded)
+            {
+                status.StatusCode = 0;
+                status.Message = "Password changing failed.";
+                return status;
+            }
+            status.StatusCode = 1;
+            status.Message = "Changed password.";
+            return status;
+        }
+
+        public async Task<Status> LogoutAsync()
+        {
+            await signInManager.SignOutAsync();
+            status.StatusCode = 1;
+            status.Message = "Signed out.";
+            return status;
+        }
+        
+        //GET ALL USERS
+        public async Task<IEnumerable<ApplicationUser>> GetAppUsersAsync()
+        {
+            return await context.Users.AsNoTracking().ToListAsync();
+        }
+
+        //DELETE USER
+        public async Task<Status> DeleteUserAsync(string id)
+        {
+            var user =await context.Users.FindAsync(id);
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
+            status.StatusCode = 1;
+            status.Message = "Deleted Successfully.";
+            return status;
+        }
+
+
+
+        //GET THE ROLE OF A USER.
+        public async Task<object?> GetUserRoles(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                
+                return "No user with this email.";
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            return roles;
+        }
+
     }
 }
 

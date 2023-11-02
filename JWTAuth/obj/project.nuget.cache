@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RzIVA3JBoQYPb9y29LOySKYFyCrPSEAQnQStZZd/er/flZnK3LsDnQIv6yS44nTSnoQJBhE0Nk3G1PiDbbRDTw==",
+  "dgSpecHash": "yuXn3kIBNiSGX1fh0q10y0S7gFPlY9PmeQyDv7K2gbNJJuEp+GJGh+ewWsLGBdTzwdoTCgGiLNaAfSUDM34KJQ==",
   "success": true,
-  "projectFilePath": "/Users/elijahamoako/Projects/AuthWithJWTRoleBased/JWTAuth/JWTAuth.csproj",
+  "projectFilePath": "/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/JWTAuth.csproj",
   "expectedPackageFiles": [
     "/Users/elijahamoako/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/microsoft.aspnetcore.authentication/2.2.0/microsoft.aspnetcore.authentication.2.2.0.nupkg.sha512",
