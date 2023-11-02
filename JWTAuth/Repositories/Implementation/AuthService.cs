@@ -194,105 +194,133 @@ namespace JWTAuth.Repositories.Implementation
         //REGISTER USER
         public async Task<Status> RegisterAsync(Registration model)
         {
-            var isExistsUser = await userManager.FindByNameAsync(model.UserName);
-
-            if (isExistsUser != null)
+            try
             {
-                status.StatusCode = 0;
-                status.Message = "Username already exists. Choose a different username.";
-                return status;
-            }
+                var isExistsUser = await userManager.FindByNameAsync(model.UserName);
 
-
-            ApplicationUser newUser = new ApplicationUser()
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email,
-                UserName = model.UserName,
-                SecurityStamp = Guid.NewGuid().ToString(),
-            };
-
-            var createUserResult = await userManager.CreateAsync(newUser, model.Password);
-
-            if (!createUserResult.Succeeded)
-            {
-                var errorString = "User Creation Failed Beacause: ";
-                foreach (var error in createUserResult.Errors)
+                if (isExistsUser != null)
                 {
-                    errorString += " # " + error.Description;
+                    status.StatusCode = 0;
+                    status.Message = "Username already exists. Choose a different username.";
+                    return status;
                 }
-                status.StatusCode = 0;
-                status.Message = errorString;
+
+
+                ApplicationUser newUser = new ApplicationUser()
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    UserName = model.UserName,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                };
+
+                var createUserResult = await userManager.CreateAsync(newUser, model.Password);
+
+                if (!createUserResult.Succeeded)
+                {
+                    var errorString = "User Creation Failed Beacause: ";
+                    foreach (var error in createUserResult.Errors)
+                    {
+                        errorString += " # " + error.Description;
+                    }
+                    status.StatusCode = 0;
+                    status.Message = errorString;
+                    return status;
+                }
+
+                // TO MAKE USER ADMIN
+                //await userManager.AddToRoleAsync(newUser, UserRoles.SUPERADMIN);
+
+                //Default user role
+                await userManager.AddToRoleAsync(newUser, UserRoles.USER);
+                status.StatusCode = 1;
+                status.Message = "User created successfully.";
                 return status;
             }
-
-            // TO MAKE USER ADMIN
-            //await userManager.AddToRoleAsync(newUser, UserRoles.SUPERADMIN);
-
-            //Default user role
-            await userManager.AddToRoleAsync(newUser, UserRoles.USER);
-            status.StatusCode = 1;
-            status.Message = "User created successfully.";
-            return status;
+            catch (Exception e)
+            {
+                status.StatusCode = 0;
+                status.Message = e.Message;
+                return status;
+            }
 
         }
         //SEED ROLES TO DB
         public async Task<Status> SeedRolesAsync()
         {
-            bool isOwnerRoleExists = await roleManager.RoleExistsAsync(UserRoles.SUPERADMIN);
-            bool isAdminRoleExists = await roleManager.RoleExistsAsync(UserRoles.ADMIN);
-            bool isUserRoleExists = await roleManager.RoleExistsAsync(UserRoles.USER);
-
-            if (isOwnerRoleExists && isAdminRoleExists && isUserRoleExists)
+            try
             {
-                status.StatusCode = 0;
-                status.Message = "Role seeding already done.";
+                bool isOwnerRoleExists = await roleManager.RoleExistsAsync(UserRoles.SUPERADMIN);
+                bool isAdminRoleExists = await roleManager.RoleExistsAsync(UserRoles.ADMIN);
+                bool isUserRoleExists = await roleManager.RoleExistsAsync(UserRoles.USER);
+
+                if (isOwnerRoleExists && isAdminRoleExists && isUserRoleExists)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Role seeding already done.";
+                    return status;
+                }
+
+
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.SUPERADMIN));
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.ADMIN));
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.USER));
+
+                status.StatusCode = 1;
+                status.Message = "Role seeding done successfully.";
                 return status;
             }
-                
-
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.SUPERADMIN));
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.ADMIN));
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.USER));
-
-            status.StatusCode = 1;
-            status.Message = "Role seeding done successfully.";
-            return status;
+            catch (Exception e)
+            {
+                status.StatusCode = 0;
+                status.Message = e.Message;
+                return status;
+            }
         }
 
 
         //CHANGE PASSWORD
         public async Task<Status> ChangePasswordAsync(ChangePassword model)
         {
-            //find the user.
+            try
+            {
+                //find the user.
 
-            var user = await userManager.FindByNameAsync(model.Username);
-            if (user ==  null)
-            {
-                status.StatusCode = 0;
-                status.Message = "Username not found.";
-                return status;
-            }
-            //check the current password.
-            if (!await userManager.CheckPasswordAsync(user, model.CurrentPassword))
-            {
-                status.StatusCode = 0;
-                status.Message = "Current password is wrong.";
-                return status;
-            }
-            //create new password
-            var newPassword = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                var user = await userManager.FindByNameAsync(model.Username);
+                if (user == null)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Username not found.";
+                    return status;
+                }
+                //check the current password.
+                if (!await userManager.CheckPasswordAsync(user, model.CurrentPassword))
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Current password is wrong.";
+                    return status;
+                }
+                //create new password
+                var newPassword = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
-            if (!newPassword.Succeeded)
-            {
-                status.StatusCode = 0;
-                status.Message = "Password changing failed.";
+                if (!newPassword.Succeeded)
+                {
+                    status.StatusCode = 0;
+                    status.Message = "Password changing failed.";
+                    return status;
+                }
+                status.StatusCode = 1;
+                status.Message = "Changed password.";
                 return status;
             }
-            status.StatusCode = 1;
-            status.Message = "Changed password.";
-            return status;
+            catch (Exception e)
+            {
+                status.StatusCode = 0;
+                status.Message = e.Message;
+                return status;
+            }
+            
         }
 
         public async Task<Status> LogoutAsync()
@@ -325,17 +353,24 @@ namespace JWTAuth.Repositories.Implementation
         //GET THE ROLE OF A USER.
         public async Task<object?> GetUserRoles(string email)
         {
-            var user = await userManager.FindByEmailAsync(email);
-
-            if (user == null)
+            try
             {
-                
-                return "No user with this email.";
+                var user = await userManager.FindByEmailAsync(email);
+
+                if (user == null)
+                {
+
+                    return "No user with this email.";
+                }
+
+                var roles = await userManager.GetRolesAsync(user);
+
+                return roles;
             }
-
-            var roles = await userManager.GetRolesAsync(user);
-
-            return roles;
+            catch (Exception)
+            {
+                return "Error occured, unable to get the role of user.";
+            }
         }//
 
     }

@@ -32,6 +32,7 @@ namespace JWTAuth.Controllers
         // Route For Seeding my roles to DB
         [HttpPost]
         [Route("seed-roles")]
+        [Authorize(Roles = UserRoles.SUPERADMIN)]
         public async Task<IActionResult> SeedRoles()
         {
             var seerRoles = await service.SeedRolesAsync();
@@ -64,8 +65,10 @@ namespace JWTAuth.Controllers
         }
 
         //make super admin
+        
         [HttpPost]
         [Route("Make-SuperAdmin")]
+        [Authorize(Roles = UserRoles.SUPERADMIN)]
         public async Task<IActionResult> MakeSuperAdmin([FromBody] UpdatePermissions model)
         {
             var result = await service.MakeSuperAdminAsync(model);
@@ -79,6 +82,7 @@ namespace JWTAuth.Controllers
         //make admin
         [HttpPost]
         [Route("Make-Admin")]
+        [Authorize(Roles = UserRoles.SUPERADMIN)]
         public async Task<IActionResult> MakeAdmin([FromBody] UpdatePermissions model)
         {
             var result = await service.MakeAdminAsync(model);
@@ -116,8 +120,8 @@ namespace JWTAuth.Controllers
         //Get all users
         [HttpGet]
         [Route("GetAppUsers")]
-        //[Authorize(Roles = "SUPERADMIN")]
         [Authorize(Roles = UserRoles.SUPERADMIN )]
+        [Authorize(Roles = UserRoles.ADMIN)]
         public async Task<IActionResult> GetAppUsers()
         {
             var data = await service.GetAppUsersAsync();
@@ -126,7 +130,7 @@ namespace JWTAuth.Controllers
 
         [HttpDelete]
         [Route("DeleteUser")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = UserRoles.SUPERADMIN)]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var product = await service.DeleteUserAsync(id);
@@ -139,8 +143,8 @@ namespace JWTAuth.Controllers
 
         [HttpGet]
         [Route("GetUserRole")]
-        //[Authorize(Roles = "SUPERADMIN")]
         [Authorize(Roles = UserRoles.SUPERADMIN)]
+        [Authorize(Roles = UserRoles.ADMIN)]
         public async Task<IActionResult> GetUserRole(string email)
         {
             var userRole = await service.GetUserRoles(email);
