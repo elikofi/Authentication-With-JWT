@@ -10,7 +10,7 @@ namespace JWTAuth.Repositories.Abstract
 	{
         Task<Status> SeedRolesAsync();
         Task<Status> RegisterAsync(Registration model);
-        Task<Status> LoginAsync(Login model);
+        Task<TokenResponse> LoginAsync(Login model);
         Task<Status> MakeAdminAsync(UpdatePermissions model);
         Task<Status> MakeSuperAdminAsync(UpdatePermissions model);
         Task<Status> ChangePasswordAsync(ChangePassword model);

@@ -1,28 +1,31 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="{D10BCE9C-EDB9-4BF5-9AB7-ED5295865BCD}|https">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workbench ActiveDocument="JWTAuth/Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="JWTAuth/Controllers/AuthController.cs">
     <Files>
-      <File FileName="JWTAuth/Repositories/Implementation/AuthService.cs" Line="315" Column="12" />
-      <File FileName="JWTAuth/Repositories/Abstract/IAuthService.cs" Line="21" Column="62" />
-      <File FileName="JWTAuth/Controllers/AuthController.cs" Line="132" Column="12" />
+      <File FileName="JWTAuth/Repositories/Implementation/AuthService.cs" Line="351" Column="1" />
+      <File FileName="JWTAuth/Repositories/Abstract/IAuthService.cs" Line="22" Column="20" />
       <File FileName="JWTAuth/Repositories/Implementation/TokenService.cs" Line="1" Column="1" />
-      <File FileName="JWTAuth/Models/Domain/ApplicationUser.cs" Line="11" Column="40" />
-      <File FileName="JWTAuth/Roles/UserRoles.cs" Line="10" Column="15" />
-      <File FileName="JWTAuth/Program.cs" Line="56" Column="1" />
+      <File FileName="JWTAuth/Models/Domain/ApplicationUser.cs" Line="10" Column="1" />
+      <File FileName="JWTAuth/Roles/UserRoles.cs" Line="6" Column="47" />
+      <File FileName="JWTAuth/Program.cs" Line="57" Column="1" />
+      <File FileName="JWTAuth/Controllers/AuthController.cs" Line="96" Column="26" NotebookId="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="AuthWithJWTRoleBased" expanded="True">
+          <Node name="AuthWithJWTRoleBased">
             <Node name="JWTAuth">
-              <Node name="Controllers" expanded="True" />
-              <Node name="Models" expanded="True" />
-              <Node name="Repositories" expanded="True">
-                <Node name="Abstract" expanded="True" />
-                <Node name="Implementation" expanded="True" />
+              <Node name="Controllers">
+                <Node name="AuthController.cs" selected="True" />
               </Node>
-              <Node name="Program.cs" selected="True" />
+              <Node name="Models" expanded="True">
+                <Node name="Domain" expanded="True" />
+              </Node>
+              <Node name="Repositories">
+                <Node name="Abstract" expanded="True" />
+              </Node>
+              <Node name="Roles" expanded="True" />
             </Node>
           </Node>
         </State>
@@ -30,6 +33,8 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.JWTAuth PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

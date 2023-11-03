@@ -58,9 +58,15 @@ namespace JWTAuth.Controllers
         public async Task<IActionResult> Login([FromBody] Login model)
         {
             var result = await service.LoginAsync(model);
-            if (result.StatusCode == 1)
-                return Ok(result);
+            //if (result.StatusCode == 1)
+            //    return Ok(result);
 
+            //return Unauthorized();
+
+            if (result.IsSuccessful == true)
+            {
+                return Ok(result);
+            }
             return Unauthorized();
         }
 
@@ -96,6 +102,7 @@ namespace JWTAuth.Controllers
         //Change password
         [HttpPost]
         [Route("Changepassword")]
+        [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
         {
             var result = await service.ChangePasswordAsync(model);

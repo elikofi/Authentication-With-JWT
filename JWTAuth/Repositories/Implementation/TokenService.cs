@@ -47,7 +47,7 @@ namespace JWTAuth.Repositories.Implementation
             }
         }
 
-        public string GetToken(List<Claim> claim)
+        public TokenResponse GetToken(List<Claim> claim)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
             var tokenObject = new JwtSecurityToken(
@@ -60,9 +60,9 @@ namespace JWTAuth.Repositories.Implementation
 
             string token = new JwtSecurityTokenHandler().WriteToken(tokenObject);
 
-            var tokenResponse = new TokenResponse { TokenString = token, ValidTo = tokenObject.ValidTo };
+            var tokenResponse = new TokenResponse { TokenString = token, ValidTo = tokenObject.ValidTo, IsSuccessful = true, Message = "Login Successful." };
 
-            return token;
+            return tokenResponse;
         }
     }
 }

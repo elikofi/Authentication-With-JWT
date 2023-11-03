@@ -6,7 +6,8 @@ namespace JWTAuth.Repositories.Abstract
 {
 	public interface ITokenService
 	{
-        string GetToken(List<Claim> claim);
+        //string GetToken(List<Claim> claim);
+        TokenResponse GetToken(List<Claim> claim);
         string GetRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }

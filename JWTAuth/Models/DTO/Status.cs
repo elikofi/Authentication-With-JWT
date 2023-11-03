@@ -5,7 +5,7 @@ namespace JWTAuth.Models.DTO
 	{
         public byte StatusCode { get; set; }
         public string? Message { get; set; }
-		public string? Token { get; set; }	
+		//public string? Token { get; set; }	
 	}
 }
 

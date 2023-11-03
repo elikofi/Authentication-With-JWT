@@ -38,27 +38,30 @@ namespace JWTAuth.Repositories.Implementation
 
 
         readonly Status status = new();
-
-        //LOGIN
-        public async Task<Status> LoginAsync(Login model)
+        public async Task<TokenResponse> LoginAsync(Login model)
         {
             try
             {
+                TokenResponse tokenResponse = new();
                 var user = await userManager.FindByNameAsync(model.UserName);
                 if (user == null)
                 {
-                    status.StatusCode = 0;
-                    status.Message = "Invalid Username.";
-                    return status;
+                    tokenResponse.TokenString = null;
+                    tokenResponse.ValidTo = DateTime.Now;
+                    tokenResponse.IsSuccessful = false;
+                    tokenResponse.Message = "Username is incorrect.";
+                    return tokenResponse;
                 }
 
                 var isPasswordCorrect = await userManager.CheckPasswordAsync(user, model.Password);
 
                 if (!isPasswordCorrect)
                 {
-                    status.StatusCode = 0;
-                    status.Message = "Invalid Password.";
-                    return status;
+                    tokenResponse.TokenString = null;
+                    tokenResponse.ValidTo = DateTime.Now;
+                    tokenResponse.IsSuccessful = false;
+                    tokenResponse.Message = "Password is incorrect.";
+                    return tokenResponse;
                 }
 
                 var signIn = await signInManager.PasswordSignInAsync(user, model.Password, false, true);
@@ -67,67 +70,53 @@ namespace JWTAuth.Repositories.Implementation
                     var userRoles = await userManager.GetRolesAsync(user);
 
                     var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim("JWTID", Guid.NewGuid().ToString()),
-                    new Claim("FirstName", user.FirstName),
-                    new Claim("LastName", user.LastName),
-                };
+                    {
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id),
+                        new Claim("JWTID", Guid.NewGuid().ToString()),
+                        new Claim("FirstName", user.FirstName),
+                        new Claim("LastName", user.LastName),
+                    };
                     foreach (var userRole in userRoles)
                     {
                         authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                     }
 
                     var token = tokenService.GetToken(authClaims);
-                    //var refreshToken = tokenService.GetRefreshToken();
-                    //var tokenInfo = context.TokenInfo.FirstOrDefault(a => a.UserName == user.UserName);
-
-                    //if (tokenInfo == null)
-                    //{
-                    //    var info = new TokenInfo
-                    //    {
-                    //        UserName = user.UserName,
-                    //        RefreshToken = refreshToken,
-                    //        RefreshTokenExpiry = DateTime.Now.AddHours(1)
-                    //    };
-                    //    context.TokenInfo.Add(info);
-                    //}
-                    //else
-                    //{
-                    //    tokenInfo.RefreshToken = refreshToken;
-                    //    tokenInfo.RefreshTokenExpiry = DateTime.Now.AddHours(1);
-                    //}
-                    //var validationErrors = context.GetValidationErrors();
-
+                    
                     await context.SaveChangesAsync();
 
-                    status.StatusCode = 1;
-                    status.Token = token;
-                    status.Message = "Login Successful.";
-                    return status;
+                    return token;
                 }
                 else if (signIn.IsLockedOut)
                 {
-                    status.StatusCode = 0;
-                    status.Message = "User logged out.";
-                    return status;
+                    tokenResponse.TokenString = null;
+                    tokenResponse.ValidTo = DateTime.Now;
+                    tokenResponse.IsSuccessful = false;
+                    tokenResponse.Message = "User logged out.";
+                    return tokenResponse;
                 }
                 else
                 {
-                    status.StatusCode = 0;
-                    status.Message = "Login not successful.";
-                    return status;
+                    tokenResponse.TokenString = null;
+                    tokenResponse.ValidTo = DateTime.Now;
+                    tokenResponse.IsSuccessful = false;
+                    tokenResponse.Message = "Login unsuccessful";
+                    return tokenResponse;
                 }
 
-                
+
             }
             catch (DbUpdateException e)
             {
-                status.StatusCode = 0;
-                status.Message = "Error Occured, unable to login.";
-                status.Message = e.Message;
-                return status;
+                TokenResponse tokenResponse = new()
+                {
+                    TokenString = null,
+                    ValidTo = DateTime.Now,
+                    IsSuccessful = false,
+                    Message = e.Message
+                };
+                return tokenResponse;
 
             }
 
