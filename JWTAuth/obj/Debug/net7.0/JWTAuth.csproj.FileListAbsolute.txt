@@ -114,3 +114,4 @@
 /Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/obj/Debug/net7.0/JWTAuth.pdb
 /Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/obj/Debug/net7.0/JWTAuth.genruntimeconfig.cache
 /Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/obj/Debug/net7.0/ref/JWTAuth.dll
+/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/bin/Debug/net7.0/RestSharp.dll

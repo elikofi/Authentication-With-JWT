@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "yuXn3kIBNiSGX1fh0q10y0S7gFPlY9PmeQyDv7K2gbNJJuEp+GJGh+ewWsLGBdTzwdoTCgGiLNaAfSUDM34KJQ==",
+  "dgSpecHash": "PfU+qvwBXyOrlTm4WIgytcZ3bXLIh9MNSAxmlo8rKBhxVWFrlc6KajpQPcWG/yjciKqe7U2X2E+Y/WPU9pZ8AQ==",
   "success": true,
   "projectFilePath": "/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/JWTAuth.csproj",
   "expectedPackageFiles": [
@@ -61,6 +61,7 @@
     "/Users/elijahamoako/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/npgsql/7.0.6/npgsql.7.0.6.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/npgsql.entityframeworkcore.postgresql/7.0.11/npgsql.entityframeworkcore.postgresql.7.0.11.nupkg.sha512",
+    "/Users/elijahamoako/.nuget/packages/restsharp/110.2.0/restsharp.110.2.0.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/swashbuckle.aspnetcore/6.5.0/swashbuckle.aspnetcore.6.5.0.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/swashbuckle.aspnetcore.swagger/6.5.0/swashbuckle.aspnetcore.swagger.6.5.0.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.5.0/swashbuckle.aspnetcore.swaggergen.6.5.0.nupkg.sha512",
@@ -75,7 +76,7 @@
     "/Users/elijahamoako/.nuget/packages/system.security.permissions/4.5.0/system.security.permissions.4.5.0.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/system.security.principal.windows/4.5.0/system.security.principal.windows.4.5.0.nupkg.sha512",
     "/Users/elijahamoako/.nuget/packages/system.text.encodings.web/7.0.0/system.text.encodings.web.7.0.0.nupkg.sha512",
-    "/Users/elijahamoako/.nuget/packages/system.text.json/7.0.0/system.text.json.7.0.0.nupkg.sha512"
+    "/Users/elijahamoako/.nuget/packages/system.text.json/7.0.2/system.text.json.7.0.2.nupkg.sha512"
   ],
   "logs": []
 }

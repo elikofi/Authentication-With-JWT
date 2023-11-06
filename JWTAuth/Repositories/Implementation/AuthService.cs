@@ -34,7 +34,7 @@ namespace JWTAuth.Repositories.Implementation
             this.tokenService = tokenService;
             this.context = context;
             //this.roles = roles;
-        }
+        } 
 
 
         readonly Status status = new();
@@ -195,13 +195,14 @@ namespace JWTAuth.Repositories.Implementation
                 }
 
 
-                ApplicationUser newUser = new ApplicationUser()
+                ApplicationUser newUser = new()
                 {
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Email = model.Email,
                     UserName = model.UserName,
                     SecurityStamp = Guid.NewGuid().ToString(),
+                    EmailConfirmed = false, //added this line
                 };
 
                 var createUserResult = await userManager.CreateAsync(newUser, model.Password);
@@ -217,7 +218,14 @@ namespace JWTAuth.Repositories.Implementation
                     status.Message = errorString;
                     return status;
                 }
+                //#region trying to confirm email
+                //var emailConfirmToken = await userManager.GenerateEmailConfirmationTokenAsync(newUser);//added this line
 
+                //var emailBody = $"Please confirm you email address <a href=\"#URL\">Click here</a>";
+                ////https://localhost:7209/authentication/verifyemail/userid=sdas&code=dasdasd
+                //var callback_url = "://" + Request.Host +
+
+                //#endregion
                 // TO MAKE USER ADMIN
                 //await userManager.AddToRoleAsync(newUser, UserRoles.SUPERADMIN);
 
