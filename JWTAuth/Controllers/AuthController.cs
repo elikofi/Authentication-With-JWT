@@ -63,7 +63,7 @@ namespace JWTAuth.Controllers
 
             //return Unauthorized();
 
-            if (result.IsSuccessful == true)
+            if (result.StatusCode == 1)
             {
                 return Ok(result);
             }
@@ -127,11 +127,13 @@ namespace JWTAuth.Controllers
         //Get all users
         [HttpGet]
         [Route("GetAppUsers")]
-        [Authorize(Roles = "SUPERADMIN, ADMIN")]
+        [Authorize(Roles = "SUPERADMIN, ADMIN, SUPERUSER")]
         public async Task<IActionResult> GetAppUsers()
         {
             var data = await service.GetAppUsersAsync();
-            return Ok(data);
+            if(data != null)
+                return Ok(data);
+            return BadRequest();
         }
 
         [HttpDelete]
@@ -154,6 +156,21 @@ namespace JWTAuth.Controllers
         {
             var userRole = await service.GetUserRoles(email);
             return Ok(userRole);
+        }
+
+        //make super user
+
+        [HttpPost]
+        [Route("Make-SuperUser")]
+        [Authorize(Roles = "SUPERADMIN")]
+        public async Task<IActionResult> MakeSuperUser([FromBody] UpdatePermissions model)
+        {
+            var result = await service.MakeSuperUserAsync(model);
+            if (result.StatusCode == 0)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
         }
     }
 }

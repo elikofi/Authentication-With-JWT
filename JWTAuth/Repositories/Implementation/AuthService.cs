@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace JWTAuth.Repositories.Implementation
 {
@@ -21,11 +23,10 @@ namespace JWTAuth.Repositories.Implementation
         private readonly IConfiguration configuration;
         private readonly ITokenService tokenService;
         private readonly DatabaseContext context;
-        //private readonly UserRoles roles;
         
 
         public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration, ITokenService tokenService, DatabaseContext context/*, UserRoles roles*/)
+            IConfiguration configuration, ITokenService tokenService, DatabaseContext context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -33,91 +34,103 @@ namespace JWTAuth.Repositories.Implementation
             this.configuration = configuration;
             this.tokenService = tokenService;
             this.context = context;
-            //this.roles = roles;
         } 
 
 
         readonly Status status = new();
-        public async Task<TokenResponse> LoginAsync(Login model)
+        readonly DateTime registrationDate = DateTime.UtcNow;
+
+        
+
+        public async Task<LoginResponse> LoginAsync(Login model)
         {
             try
             {
-                TokenResponse tokenResponse = new();
                 var user = await userManager.FindByNameAsync(model.UserName);
-                if (user == null)
-                {
-                    tokenResponse.TokenString = null;
-                    tokenResponse.ValidTo = DateTime.Now;
-                    tokenResponse.IsSuccessful = false;
-                    tokenResponse.Message = "Username is incorrect.";
-                    return tokenResponse;
-                }
 
-                var isPasswordCorrect = await userManager.CheckPasswordAsync(user, model.Password);
-
-                if (!isPasswordCorrect)
-                {
-                    tokenResponse.TokenString = null;
-                    tokenResponse.ValidTo = DateTime.Now;
-                    tokenResponse.IsSuccessful = false;
-                    tokenResponse.Message = "Password is incorrect.";
-                    return tokenResponse;
-                }
 
                 var signIn = await signInManager.PasswordSignInAsync(user, model.Password, false, true);
                 if (signIn.Succeeded)
                 {
-                    var userRoles = await userManager.GetRolesAsync(user);
+                    if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
+                    {
+                        var userRoles = await userManager.GetRolesAsync(user);
 
-                    var authClaims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, user.Id),
-                        new Claim("JWTID", Guid.NewGuid().ToString()),
-                        new Claim("FirstName", user.FirstName),
-                        new Claim("LastName", user.LastName),
-                    };
-                    foreach (var userRole in userRoles)
-                    {
-                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                        var authClaims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, user.UserName),
+                            new Claim(ClaimTypes.NameIdentifier, user.Id),
+                            new Claim("JWTID", Guid.NewGuid().ToString()),
+                            new Claim("FirstName", user.FirstName),
+                            new Claim("LastName", user.LastName),
+                        };
+                        foreach (var userRole in userRoles)
+                        {
+                            authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                        }
+
+                        var token = tokenService.GetToken(authClaims);
+                        #region
+                        var refreshToken = tokenService.GetRefreshToken();
+                        var tokenInfo = context.TokenInfo.FirstOrDefault(a => a.UserName == user.UserName);
+                        if (tokenInfo == null)
+                        {
+                            var info = new TokenInfo
+                            {
+                                UserName = user.UserName,
+                                RefreshToken = refreshToken,
+                                RefreshTokenExpiry = DateTime.UtcNow.AddDays(1)
+                            };
+                            context.TokenInfo.Add(info);
+                        }
+
+                        else
+                        {
+                            tokenInfo.RefreshToken = refreshToken;
+                            tokenInfo.RefreshTokenExpiry = DateTime.UtcNow.AddDays(1);
+                        }
+
+                        #endregion
+
+                        await context.SaveChangesAsync();
+
+                        return new LoginResponse
+                        {
+                            UserName = user.UserName,
+                            Token = token.TokenString,
+                            RefreshToken = refreshToken,
+                            Expiration = token.ValidTo,
+                            StatusCode = 1,
+                            Message = "Logged in"
+                        };
                     }
 
-                    var token = tokenService.GetToken(authClaims);
-                    
-                    await context.SaveChangesAsync();
-
-                    return token;
                 }
                 else if (signIn.IsLockedOut)
                 {
-                    tokenResponse.TokenString = null;
-                    tokenResponse.ValidTo = DateTime.Now;
-                    tokenResponse.IsSuccessful = false;
-                    tokenResponse.Message = "User logged out.";
-                    return tokenResponse;
+                    return new LoginResponse
+                    {
+                        UserName = user.UserName,
+                        StatusCode = 0,
+                        Message = "User has logged out."
+                    };
                 }
-                else
+                return new LoginResponse
                 {
-                    tokenResponse.TokenString = null;
-                    tokenResponse.ValidTo = DateTime.Now;
-                    tokenResponse.IsSuccessful = false;
-                    tokenResponse.Message = "Login unsuccessful";
-                    return tokenResponse;
-                }
-
+                    UserName = user.UserName,
+                    StatusCode = 0,
+                    Message = "Login unsuccessful."
+                };
 
             }
             catch (DbUpdateException e)
             {
-                TokenResponse tokenResponse = new()
+                return new LoginResponse
                 {
-                    TokenString = null,
-                    ValidTo = DateTime.Now,
-                    IsSuccessful = false,
+
+                    StatusCode = 0,
                     Message = e.Message
                 };
-                return tokenResponse;
-
             }
 
         }
@@ -251,8 +264,9 @@ namespace JWTAuth.Repositories.Implementation
                 bool isOwnerRoleExists = await roleManager.RoleExistsAsync(UserRoles.SUPERADMIN);
                 bool isAdminRoleExists = await roleManager.RoleExistsAsync(UserRoles.ADMIN);
                 bool isUserRoleExists = await roleManager.RoleExistsAsync(UserRoles.USER);
+                bool isSuperUserRoleExists = await roleManager.RoleExistsAsync(UserRoles.SUPERUSER);
 
-                if (isOwnerRoleExists && isAdminRoleExists && isUserRoleExists)
+                if (isOwnerRoleExists && isAdminRoleExists && isUserRoleExists && isSuperUserRoleExists)
                 {
                     status.StatusCode = 0;
                     status.Message = "Role seeding already done.";
@@ -263,6 +277,7 @@ namespace JWTAuth.Repositories.Implementation
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.SUPERADMIN));
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.ADMIN));
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.USER));
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.SUPERUSER));
 
                 status.StatusCode = 1;
                 status.Message = "Role seeding done successfully.";
@@ -331,7 +346,15 @@ namespace JWTAuth.Repositories.Implementation
         //GET ALL USERS
         public async Task<IEnumerable<ApplicationUser>> GetAppUsersAsync()
         {
-            return await context.Users.AsNoTracking().ToListAsync();
+            var users = await context.Users.AsNoTracking().ToListAsync();
+            if (users != null)
+            {
+                status.StatusCode = 1;
+                return users;
+            }
+
+            
+            return null;
         }
 
         //DELETE USER
@@ -368,8 +391,130 @@ namespace JWTAuth.Repositories.Implementation
             {
                 return "Error occured, unable to get the role of user.";
             }
-        }//
+        }
 
+        
+        
+        public async Task<Status> MakeSuperUserAsync(UpdatePermissions model)
+        {
+
+           
+
+            DateTime registrationEndDate = registrationDate.AddSeconds(50);
+
+            var user = await userManager.FindByNameAsync(model.UserName);
+
+            if (user != null && registrationDate < registrationEndDate)
+            {
+                await userManager.AddToRoleAsync(user, UserRoles.SUPERUSER);
+
+                status.StatusCode = 1;
+                status.Message = user.UserName + " is now a super user.";
+                return status;
+            }
+            await userManager.AddToRoleAsync(user, UserRoles.USER);
+
+
+
+            status.StatusCode = 0;
+            status.Message = "Invalid Username.";
+            return status;
+
+
+        }
+
+
+
+        //public async Task<TokenResponse> LoginAsync(Login model)
+        //{
+        //    try
+        //    {
+        //        TokenResponse tokenResponse = new();
+        //        var user = await userManager.FindByNameAsync(model.UserName);
+        //        if (user == null)
+        //        {
+        //            tokenResponse.TokenString = null;
+        //            tokenResponse.ValidTo = DateTime.Now;
+        //            tokenResponse.IsSuccessful = false;
+        //            tokenResponse.Message = "Username is incorrect.";
+        //            return tokenResponse;
+        //        }
+
+        //        var isPasswordCorrect = await userManager.CheckPasswordAsync(user, model.Password);
+
+        //        if (!isPasswordCorrect)
+        //        {
+        //            tokenResponse.TokenString = null;
+        //            tokenResponse.ValidTo = DateTime.Now;
+        //            tokenResponse.IsSuccessful = false;
+        //            tokenResponse.Message = "Password is incorrect.";
+        //            return tokenResponse;
+        //        }
+
+        //        var signIn = await signInManager.PasswordSignInAsync(user, model.Password, false, true);
+        //        if (signIn.Succeeded)
+        //        {
+        //            var userRoles = await userManager.GetRolesAsync(user);
+
+        //            var authClaims = new List<Claim>
+        //            {
+        //                new Claim(ClaimTypes.Name, user.UserName),
+        //                new Claim(ClaimTypes.NameIdentifier, user.Id),
+        //                new Claim("JWTID", Guid.NewGuid().ToString()),
+        //                new Claim("FirstName", user.FirstName),
+        //                new Claim("LastName", user.LastName),
+        //            };
+        //            foreach (var userRole in userRoles)
+        //            {
+        //                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+        //            }
+
+        //            var token = tokenService.GetToken(authClaims);
+
+        //            await context.SaveChangesAsync();
+
+        //            return token;
+        //        }
+        //        else if (signIn.IsLockedOut)
+        //        {
+        //            tokenResponse.TokenString = null;
+        //            tokenResponse.ValidTo = DateTime.Now;
+        //            tokenResponse.IsSuccessful = false;
+        //            tokenResponse.Message = "User logged out.";
+        //            return tokenResponse;
+        //        }
+        //        else
+        //        {
+        //            tokenResponse.TokenString = null;
+        //            tokenResponse.ValidTo = DateTime.Now;
+        //            tokenResponse.IsSuccessful = false;
+        //            tokenResponse.Message = "Login unsuccessful";
+        //            return tokenResponse;
+        //        }
+
+
+        //    }
+        //    catch (DbUpdateException e)
+        //    {
+        //        TokenResponse tokenResponse = new()
+        //        {
+        //            TokenString = null,
+        //            ValidTo = DateTime.Now,
+        //            IsSuccessful = false,
+        //            Message = e.Message
+        //        };
+        //        return tokenResponse;
+
+        //    }
+
+        //}
+
+
+        //private class RegistrationDate
+        //{
+        //    DateTime registrationDate = DateTime.UtcNow;
+        //}
     }
+   
 }
 

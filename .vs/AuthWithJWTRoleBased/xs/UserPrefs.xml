@@ -1,27 +1,37 @@
-﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="{D10BCE9C-EDB9-4BF5-9AB7-ED5295865BCD}|https">
-  <MonoDevelop.Ide.Workbench ActiveDocument="JWTAuth/Controllers/AuthController.cs">
+﻿<Properties StartupConfiguration="{D10BCE9C-EDB9-4BF5-9AB7-ED5295865BCD}|https" GitUserInfo="UsingGIT">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="JWTAuth/Repositories/Abstract/IAuthService.cs">
     <Files>
-      <File FileName="JWTAuth/Controllers/AuthController.cs" Line="116" Column="1" />
-      <File FileName="JWTAuth/Repositories/Implementation/AuthService.cs" Line="123" Column="1" />
-      <File FileName="JWTAuth/Repositories/Abstract/IAuthService.cs" />
-      <File FileName="JWTAuth/Repositories/Implementation/TokenService.cs" />
-      <File FileName="JWTAuth/Repositories/Abstract/ITokenService.cs" />
-      <File FileName="JWTAuth/Models/DTO/TokenResponse.cs" Line="9" Column="1" />
+      <File FileName="JWTAuth/Controllers/AuthController.cs" Line="64" Column="37" />
+      <File FileName="JWTAuth/Repositories/Implementation/AuthService.cs" Line="126" Column="1" />
+      <File FileName="JWTAuth/Repositories/Abstract/IAuthService.cs" Line="27" Column="1" />
+      <File FileName="JWTAuth/Repositories/Implementation/TokenService.cs" Line="43" Column="60" />
+      <File FileName="JWTAuth/Repositories/Abstract/ITokenService.cs" Line="1" Column="1" />
+      <File FileName="JWTAuth/Models/DTO/TokenResponse.cs" Line="1" Column="1" />
+      <File FileName="JWTAuth/Models/Domain/ApplicationUser.cs" />
+      <File FileName="JWTAuth/Program.cs" />
+      <File FileName="JWTAuth/Data/DatabaseContext.cs" />
+      <File FileName="JWTAuth/Models/DTO/LoginResponse.cs" Line="10" Column="6" />
+      <File FileName="JWTAuth/Models/DTO/Registration.cs" Line="1" Column="1" />
+      <File FileName="JWTAuth/Models/DTO/Status.cs" Line="1" Column="1" />
+      <File FileName="JWTAuth/Models/Domain/TokenInfo.cs" Line="13" Column="1" />
+      <File FileName="JWTAuth/Models/DTO/UpdatePermissions.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="AuthWithJWTRoleBased" expanded="True">
-            <Node name="JWTAuth" expanded="True">
-              <Node name="Controllers" expanded="True">
-                <Node name="AuthController.cs" selected="True" />
-              </Node>
+          <Node name="AuthWithJWTRoleBased">
+            <Node name="JWTAuth">
+              <Node name="Dependencies" expanded="True" />
               <Node name="Data" expanded="True" />
               <Node name="Models" expanded="True">
+                <Node name="Domain" expanded="True" />
                 <Node name="DTO" expanded="True" />
               </Node>
-              <Node name="Repositories" expanded="True">
-                <Node name="Implementation" expanded="True" />
+              <Node name="Repositories">
+                <Node name="Abstract">
+                  <Node name="IAuthService.cs" selected="True" />
+                </Node>
               </Node>
             </Node>
           </Node>
@@ -30,13 +40,9 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/Repositories/Implementation/AuthService.cs" relfile="JWTAuth/Repositories/Implementation/AuthService.cs" line="332" column="1" />
-      <Breakpoint file="/Users/elijahamoako/Desktop/Essentials/Authentications/My Auth with JWT/AuthWithJWTRoleBased/JWTAuth/Controllers/AuthController.cs" relfile="JWTAuth/Controllers/AuthController.cs" line="133" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.ItemProperties.JWTAuth PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MultiItemStartupConfigurations />
 </Properties>
